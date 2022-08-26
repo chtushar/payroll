@@ -1,10 +1,12 @@
 import "../styles/globals.css";
+import "antd/dist/antd.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+import { getChains } from "../lib/chains";
 
 const ganache = {
   ...chain.localhost,
@@ -13,15 +15,12 @@ const ganache = {
   },
 };
 
-const { chains, provider, webSocketProvider } = configureChains(
-  [chain.kovan, chain.polygonMumbai, chain.hardhat, ganache],
-  [
-    alchemyProvider({
-      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
-    }),
-    publicProvider(),
-  ]
-);
+const { chains, provider, webSocketProvider } = configureChains(getChains(), [
+  alchemyProvider({
+    apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+  }),
+  publicProvider(),
+]);
 
 const { connectors } = getDefaultWallets({
   appName: "RainbowKit App",

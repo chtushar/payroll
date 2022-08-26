@@ -15,5 +15,5 @@
 }
 
 .main {
-    padding: var(--spacings_16px);
+    padding: 48px var(--spacings_16px);
 }
