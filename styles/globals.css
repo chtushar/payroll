@@ -1,3 +1,7 @@
+:root {
+  --spacings_16px: 16px;
+}
+
 html,
 body {
   padding: 0;
