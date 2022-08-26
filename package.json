@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "4.7.0",
+    "@openzeppelin/contracts": "4.7.3",
     "@radix-ui/react-dialog": "1.0.0",
     "@rainbow-me/rainbowkit": "0.5.0",
+    "@routerprotocol/router-crosstalk": "0.1.4",
     "@supabase/supabase-js": "1.35.6",
     "antd": "4.22.8",
     "axios": "0.27.2",
