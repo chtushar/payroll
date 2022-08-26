@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { useAccount } from "wagmi";
 
 interface DashboardContextType {
-  selectedList?: Record<string, string | number>;
+  selectedList?: any;
   handleSelectList: (list: Record<string, string | number>) => void;
   allAddresses: Array<{}>;
 }

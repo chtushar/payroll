@@ -1,5 +1,5 @@
 import "../styles/globals.css";
-import "antd/dist/antd.css";
+import "rsuite/dist/rsuite.min.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
 import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";

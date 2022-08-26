@@ -1,13 +1,14 @@
 import useSWR from "swr";
 import axios from "axios";
-import { Button, Space, Typography, Divider } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import Stack from "rsuite/Stack";
+import Input from "rsuite/Input";
+import IconButton from "rsuite/IconButton";
+import Button from "rsuite/Button";
+import PlusIcon from "@rsuite/icons/legacy/Plus";
 import { API } from "../requests";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useDashboard } from "./DashboardProvider";
-
-const { Title } = Typography;
 
 const Lists = () => {
   const { address } = useAccount();
@@ -19,14 +20,20 @@ const Lists = () => {
   const { data, mutate } = useSWR("/api/lists/all", fetcher);
 
   return (
-    <Space direction="vertical" size={12} style={{ width: "100%" }}>
-      <Title level={3}>Rolls</Title>
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <AddList onSubmit={mutate} address={address ?? ""} />
-        <Divider />
-        {data && <ListOfLists data={data} />}
-      </Space>
-    </Space>
+    <div style={{ padding: 24, borderRadius: 16, backgroundColor: "#fafafa" }}>
+      <Stack direction="column" alignItems="stretch" spacing={24}>
+        <h3>Rolls</h3>
+        <Stack
+          direction="column"
+          spacing={12}
+          alignItems="stretch"
+          style={{ width: "100%" }}
+        >
+          <AddList onSubmit={mutate} address={address ?? ""} />
+          {data && <ListOfLists data={data} />}
+        </Stack>
+      </Stack>
+    </div>
   );
 };
 
@@ -44,12 +51,13 @@ const ListOfLists = ({ data }: { data: Array<any> }) => {
     >
       {data?.map((list) => {
         return (
-          <button
+          <Button
+            size="lg"
             onClick={() => dashboardContext?.handleSelectList(list)}
             key={list.id}
           >
             {list.name}
-          </button>
+          </Button>
         );
       })}
     </div>
@@ -67,9 +75,13 @@ const AddList = ({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    await API.addList({ name, owner: address });
-    setName("");
-    onSubmit?.();
+    try {
+      await API.addList({ name, owner: address });
+      setName("");
+      onSubmit?.();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -82,18 +94,19 @@ const AddList = ({
           gap: 8,
         }}
       >
-        <input
+        <Input
           placeholder="Create new List"
           type="text"
           name="name"
           value={name}
-          onChange={({ target: { value } }) => setName(value)}
+          onChange={(value) => setName(value)}
         />
-        <Button
-          type="primary"
-          shape="circle"
+        <IconButton
+          type="submit"
+          size="md"
+          icon={<PlusIcon />}
           disabled={typeof name !== "string" || name.length === 0}
-          icon={<PlusOutlined />}
+          appearance="primary"
         />
       </div>
     </form>

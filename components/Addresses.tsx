@@ -1,17 +1,24 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { getChains } from "../lib/chains";
+import { API } from "../requests";
 import { useDashboard } from "./DashboardProvider";
 
 const Addresses = () => {
   const dashboardContext = useDashboard();
   const fetcher = async () => {
-    if (!dashboardContext?.selectedList) {
-      return [];
+    try {
+      if (!dashboardContext?.selectedList) {
+        return [];
+      }
+      const data = await axios.get(
+        `/api/lists/${dashboardContext?.selectedList?.id}`
+      );
+      return data.data;
+    } catch (error) {
+      console.log(error);
     }
-
-    return await axios.get(`/api/lists/${dashboardContext?.selectedList?.id}`);
   };
 
   const { data, mutate } = useSWR(`all_addresses`, fetcher);
@@ -24,11 +31,31 @@ const Addresses = () => {
 
   return (
     <>
-      <AddAddress />
-      {dashboardContext?.selectedList &&
-        Array.isArray(data) &&
-        data.length > 0 &&
-        JSON.stringify(data)}
+      {dashboardContext?.selectedList && (
+        <>
+          <h2>{dashboardContext?.selectedList.name}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <AddAddress
+              listId={parseInt(dashboardContext?.selectedList.id, 10)}
+              onSubmit={mutate}
+            />
+            <div>
+              {Array.isArray(data.data) &&
+                data.data.length > 0 &&
+                data.data.map((add: any) => {
+                  return (
+                    <div
+                      key={add.id}
+                      style={{ display: "flex", flexDirection: "row" }}
+                    >
+                      {add.address}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };
@@ -37,10 +64,16 @@ type Event = {
   target: { value: any };
 };
 
-const AddAddress = () => {
+const AddAddress = ({
+  listId,
+  onSubmit,
+}: {
+  listId?: number;
+  onSubmit: any;
+}) => {
   const [values, setValues] = useState({
     address: "",
-    chain: undefined,
+    chain: getChains()[0].id,
     amount: 0,
   });
 
@@ -65,8 +98,20 @@ const AddAddress = () => {
     }));
   };
 
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    try {
+      if (listId) {
+        await API.addAddress(listId, values);
+        onSubmit();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div
         style={{
           display: "flex",
@@ -76,7 +121,7 @@ const AddAddress = () => {
         }}
       >
         <input
-          placeholder="Create new List"
+          placeholder="Add new address"
           type="text"
           name="name"
           value={values.address}
