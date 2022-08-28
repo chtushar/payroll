@@ -90,15 +90,11 @@ const Addresses = () => {
                 console.log(data);
                 if (data.data && contract) {
                   try {
-                    await contract.setCrossChainGas(
-                      (data.data.length ?? 1) * 5000000000
-                    );
+                    // await contract.setCrossChainGas(
+                    //   (data.data.length ?? 1) * 5000000000
+                    // );
                     await contract.bulkTransferCrossChain(
                       processDataForContract(data.data)
-                    );
-                    console.log(
-                      processDataForContract(data.data),
-                      (data.data.length ?? 1) * 5000000000
                     );
                   } catch (error) {
                     console.log(error);
