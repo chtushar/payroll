@@ -1,6 +1,7 @@
 import axios from "axios";
-import { ChangeEvent, useEffect, useState } from "react";
-import useSWR, { mutate } from "swr";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { getChains } from "../lib/chains";
 import { API } from "../requests";
 import { useDashboard } from "./DashboardProvider";

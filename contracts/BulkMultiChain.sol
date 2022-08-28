@@ -17,7 +17,7 @@ contract BulkMultiChain is ERC20, AccessControl, RouterCrossTalk {
 
     constructor(address _genericHandler)
         RouterCrossTalk(_genericHandler)
-        ERC20("Payroll Router", "PYRLR")
+        ERC20("Payroll Router", "PRRO")
         AccessControl()
     {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -99,7 +99,7 @@ contract BulkMultiChain is ERC20, AccessControl, RouterCrossTalk {
         uint256 _amt
     ) internal returns (bool) {
         bytes4 _selector = bytes4(
-            keccak256("ReciveCrossChain(address,uint256)")
+            keccak256("receiveCrossChain(address,uint256)")
         );
         bytes memory _data = abi.encode(_to, _amt);
         (bool success, bytes32 b) = routerSend(
