@@ -11,12 +11,12 @@ import Trash from "@rsuite/icons/Trash";
 import SelectPicker from "rsuite/SelectPicker";
 import Panel from "rsuite/Panel";
 import { getChains } from "../lib/chains";
-import { API } from "../requests";
 import { useDashboard } from "./DashboardProvider";
 import { useContract, useSigner, useNetwork } from "wagmi";
 import { toast } from "react-toastify";
 import contractABI from "../abis/BulkMultiChain.json";
 import { BigNumber } from "ethers";
+import { API } from "../requests";
 
 const chains = getChains();
 
@@ -56,7 +56,7 @@ const Addresses = () => {
   const { data: signer, isError, isLoading } = useSigner();
 
   const contract = useContract({
-    addressOrName: "0x281ACae8cdb67F492040A0ac0Fa19cDEa14cd20A",
+    addressOrName: "0x25C83333d27cF3eF04579C9b54BB300de0d2d5AC",
     contractInterface: contractABI.abi,
     signerOrProvider: signer,
   });

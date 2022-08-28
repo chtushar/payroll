@@ -1,23 +1,3 @@
-// import { HardhatUserConfig } from "hardhat/config";
-// import "@nomiclabs/hardhat-ganache";
-// import "@nomicfoundation/hardhat-toolbox";
-
-// const config: HardhatUserConfig = {
-//   solidity: "0.8.9",
-//   defaultNetwork: "hardhat",
-//   networks: {
-//     ganache: {
-//       url: "http://127.0.0.1:7545",
-//       chainId: 1337,
-//     },
-//     hardhat: {
-//       chainId: 31337,
-//     },
-//   },
-// };
-
-// export default config;
-
 require("dotenv").config({ path: "./.env" });
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
@@ -41,8 +21,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const mnemonic = process.env.MNEMONIC || "";
-
-console.log(mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -72,11 +50,11 @@ const config: HardhatUserConfig = {
   //  defaultNetwork: "kovan",
   networks: {
     polygon: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/BVMHKDiJh8nj9S-vMhINq0zJdGAwRe3X",
-      accounts: [mnemonic],
+      url: process.env.MATIC_RPC ?? "",
+      accounts: [mnemonic] ?? "",
     },
     ftm: {
-      url: "https://rpc.ftm.tools",
+      url: process.env.FTM_RPC ?? "",
       accounts: [mnemonic],
     },
   },
@@ -86,8 +64,8 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      polygon: "V973UAC9Y59Z9NBVR716Z18E9S2J66RACP",
-      opera: "1N9QM4D5X9ITHZH1Z9AF1FV6STE29VRNCF",
+      polygon: process.env.POLYGONSCAN_API_KEY ?? "",
+      opera: process.env.FANTOM_API_KEY ?? "",
     },
   },
 };

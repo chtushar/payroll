@@ -1,7 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable node/no-unpublished-import */
-/* eslint-disable node/no-missing-import */
-
 import { Contract } from "ethers";
 import { task, types } from "hardhat/config";
 import { TASK_MAP_CONTRACT } from "./task-names";
