@@ -6,3 +6,4 @@ export const TASK_MAP_CONTRACT = "MAP_CONTRACTS";
 export const TASK_UNMAP_CONTRACT = "UNMAP_CONTRACTS";
 export const TASK_APPROVE_FEES = "APPROVE_FEES";
 export const MINT = "MINT";
+export const BULK_TRANSFER = "BULK_TRANSFER";
