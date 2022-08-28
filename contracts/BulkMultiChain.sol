@@ -128,7 +128,7 @@ contract BulkMultiChain is ERC20, AccessControl, RouterCrossTalk {
         return (success, returnData);
     }
 
-    function ReciveCrossChain(address _to, uint256 _amt) external isSelf {
+    function receiveCrossChain(address _to, uint256 _amt) external isSelf {
         //        (address _to , uint256 _amt) = abi.decode(_data, ( address , uint256 ));
         _mint(_to, _amt);
     }

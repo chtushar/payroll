@@ -1,6 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable node/no-missing-import */
-/* eslint-disable node/no-unpublished-import */
 import { task } from "hardhat/config";
 import {
   TASK_APPROVE_FEES,
@@ -21,7 +18,7 @@ task(TASK_DEPLOY, "Deploys the project").setAction(
     const feeToken = deployment[chainId].feeToken;
     const linker = deployment[chainId].linker;
 
-    const contract = await hre.ethers.getContractFactory("Greeter");
+    const contract = await hre.ethers.getContractFactory("BulkMultiChain");
 
     const greeter = await contract.deploy(handler);
     await greeter.deployed();

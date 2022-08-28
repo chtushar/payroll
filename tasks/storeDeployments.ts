@@ -1,6 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable node/no-unpublished-import */
-/* eslint-disable node/no-missing-import */
 import { task, types } from "hardhat/config";
 import { TASK_STORE_DEPLOYMENTS } from "./task-names";
 import fs from "fs";
