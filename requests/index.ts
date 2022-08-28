@@ -7,4 +7,5 @@ export const API = {
     listId: number,
     body: { amount: number; address: string; chain: number }
   ) => axios.post(`/api/lists/${listId}/add`, body),
+  removeAddress: (listId: number) => axios.get(`/api/lists/${listId}/remove`),
 };

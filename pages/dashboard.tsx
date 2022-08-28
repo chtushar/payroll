@@ -1,7 +1,9 @@
+import * as React from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
+import Stack from "rsuite/Stack";
 import DashboardProvider from "../components/DashboardProvider";
 
 import Layout from "../components/Layout";
@@ -20,22 +22,33 @@ const Dashboard: NextPage = () => {
 
   return (
     <Layout>
-      <DashboardProvider>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            columnGap: 24,
-          }}
-        >
-          <div style={{ gridColumn: "1 / 2" }}>
-            <Lists />
+      <div style={{ flex: 1, height: "100%", alignSelf: "stretch" }}>
+        <DashboardProvider>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              columnGap: 24,
+            }}
+          >
+            <Stack
+              direction="column"
+              spacing={24}
+              style={{ gridColumn: "1 / 2" }}
+            >
+              <Lists />
+            </Stack>
+            <Stack
+              direction="column"
+              alignItems="flex-start"
+              spacing={24}
+              style={{ gridColumn: "2 / -1" }}
+            >
+              <Addresses />
+            </Stack>
           </div>
-          <div style={{ gridColumn: "2 / -1" }}>
-            <Addresses />
-          </div>
-        </div>
-      </DashboardProvider>
+        </DashboardProvider>
+      </div>
     </Layout>
   );
 };

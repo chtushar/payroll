@@ -1,4 +1,6 @@
+import * as React from "react";
 import "../styles/globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import "rsuite/dist/rsuite.min.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
@@ -7,13 +9,7 @@ import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { getChains } from "../lib/chains";
-
-const ganache = {
-  ...chain.localhost,
-  rpcUrls: {
-    default: "http://localhost:7545",
-  },
-};
+import { ToastContainer } from "react-toastify";
 
 const { chains, provider, webSocketProvider } = configureChains(getChains(), [
   alchemyProvider({
@@ -40,6 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <RainbowKitProvider chains={chains}>
         <Component {...pageProps} />
       </RainbowKitProvider>
+      <ToastContainer />
     </WagmiConfig>
   );
 }

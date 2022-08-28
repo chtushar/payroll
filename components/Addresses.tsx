@@ -1,13 +1,41 @@
+import * as React from "react";
 import axios from "axios";
-import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import Stack from "rsuite/Stack";
+import Input from "rsuite/Input";
+import InputGroup from "rsuite/InputGroup";
+import Button from "rsuite/Button";
+import IconButton from "rsuite/IconButton";
+import Trash from "@rsuite/icons/Trash";
+import SelectPicker from "rsuite/SelectPicker";
+import Panel from "rsuite/Panel";
 import { getChains } from "../lib/chains";
 import { API } from "../requests";
 import { useDashboard } from "./DashboardProvider";
+import { useContract, useSigner, useNetwork } from "wagmi";
+import { toast } from "react-toastify";
+import contractABI from "../abis/BulkMultiChain.json";
+import { BigNumber } from "ethers";
+
+const chains = getChains();
+
+const chainMappings = {
+  250: 4,
+  137: 1,
+};
+
+const processDataForContract = (
+  data: Array<{ address: string; chain_id: 137 | 250; amount: number }>
+): Array<{ _to: string; _chainID: number; _amt: BigNumber }> => {
+  return data.map(({ address, chain_id, amount }) => ({
+    _to: address,
+    _chainID: chainMappings[chain_id],
+    _amt: BigNumber.from((amount * 10 ** 18).toString()),
+  }));
+};
 
 const Addresses = () => {
-  const dashboardContext = useDashboard();
   const fetcher = async () => {
     try {
       if (!dashboardContext?.selectedList) {
@@ -22,7 +50,21 @@ const Addresses = () => {
     }
   };
 
+  const dashboardContext = useDashboard();
+  const { chain } = useNetwork();
   const { data, mutate } = useSWR(`all_addresses`, fetcher);
+  const { data: signer, isError, isLoading } = useSigner();
+
+  const contract = useContract({
+    addressOrName: "0x281ACae8cdb67F492040A0ac0Fa19cDEa14cd20A",
+    contractInterface: contractABI.abi,
+    signerOrProvider: signer,
+  });
+
+  const handleRemove = async (listId: number) => {
+    await API.removeAddress(listId);
+    mutate();
+  };
 
   useEffect(() => {
     if (!!dashboardContext?.selectedList) {
@@ -33,36 +75,86 @@ const Addresses = () => {
   return (
     <>
       {dashboardContext?.selectedList && (
-        <>
-          <h2>{dashboardContext?.selectedList.name}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <Stack direction="column" spacing={48} alignItems="stretch">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            style={{ width: "100%" }}
+          >
+            <h2>{dashboardContext?.selectedList.name}</h2>
+            <Button
+              appearance="primary"
+              size="lg"
+              onClick={async () => {
+                console.log(data);
+                if (data.data && contract) {
+                  try {
+                    await contract.setCrossChainGas(
+                      (data.data.length ?? 1) * 5000000000
+                    );
+                    await contract.bulkTransferCrossChain(
+                      processDataForContract(data.data)
+                    );
+                    console.log(
+                      processDataForContract(data.data),
+                      (data.data.length ?? 1) * 5000000000
+                    );
+                  } catch (error) {
+                    console.log(error);
+                    toast("Something went wrong", { type: "error" });
+                  }
+                }
+              }}
+            >
+              Pay
+            </Button>
+          </Stack>
+          <Stack direction="column" alignItems="stretch" spacing={18}>
             <AddAddress
               listId={parseInt(dashboardContext?.selectedList.id, 10)}
               onSubmit={mutate}
             />
-            <div>
-              {Array.isArray(data.data) &&
-                data.data.length > 0 &&
-                data.data.map((add: any) => {
+            <Stack direction="column" alignItems="stretch" spacing={12}>
+              {Array.isArray(data?.data) &&
+                data?.data.length > 0 &&
+                data?.data.map((add: any) => {
                   return (
-                    <div
+                    <Panel
                       key={add.id}
                       style={{ display: "flex", flexDirection: "row" }}
+                      bordered
                     >
-                      {add.address}
-                    </div>
+                      <Stack
+                        direction="row"
+                        spacing={16}
+                        justifyContent="space-between"
+                        style={{ width: "100%" }}
+                      >
+                        <Stack direction="row" spacing={16} style={{ flex: 1 }}>
+                          <span>{add.address}</span>
+                          <span>
+                            {chains.find(({ id }) => id === add.chain_id)?.name}
+                          </span>
+                          <span>{add.amount}</span>
+                        </Stack>
+                        <IconButton
+                          icon={<Trash />}
+                          color="red"
+                          appearance="primary"
+                          size="sm"
+                          onClick={() => handleRemove(add.id)}
+                        />
+                      </Stack>
+                    </Panel>
                   );
                 })}
-            </div>
-          </div>
-        </>
+            </Stack>
+          </Stack>
+        </Stack>
       )}
     </>
   );
-};
-
-type Event = {
-  target: { value: any };
 };
 
 const AddAddress = ({
@@ -74,28 +166,30 @@ const AddAddress = ({
 }) => {
   const [values, setValues] = useState({
     address: "",
-    chain: getChains()[0].id,
+    chain: chains[0].id,
     amount: 0,
   });
 
-  const handleAddressChange = ({ target: { value } }: Event) => {
+  const handleAddressChange = (value: string) => {
     setValues((prev) => ({
       ...prev,
       address: value,
     }));
   };
 
-  const handleChainChange = ({ target: { value } }: Event) => {
-    setValues((prev) => ({
-      ...prev,
-      chain: value,
-    }));
+  const handleChainChange = (value: string | null) => {
+    if (typeof value === "string") {
+      setValues((prev) => ({
+        ...prev,
+        chain: parseInt(value, 10),
+      }));
+    }
   };
 
-  const handleAmountChange = ({ target: { value } }: Event) => {
+  const handleAmountChange = (value: string) => {
     setValues((prev) => ({
       ...prev,
-      amount: value,
+      amount: parseFloat(value),
     }));
   };
 
@@ -111,44 +205,47 @@ const AddAddress = ({
     }
   };
 
+  const isValid =
+    typeof values.address === "string" &&
+    values?.address.length > 0 &&
+    typeof values.chain === "number" &&
+    typeof values.amount === "number" &&
+    values.amount > 0;
+
   return (
     <form onSubmit={handleSubmit}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          gap: 8,
-        }}
-      >
-        <input
+      <Stack direction="row" spacing={12} alignItems="center">
+        <Input
           placeholder="Add new address"
           type="text"
           name="name"
           value={values.address}
           onChange={handleAddressChange}
         />
-        <select
+        <SelectPicker
           name="chain"
           id="chain"
-          value={values.chain}
           onChange={handleChainChange}
-        >
-          {getChains().map(({ name, id }) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          name="amount"
-          id="amount"
-          value={values.amount}
-          onChange={handleAmountChange}
+          style={{ minWidth: 150 }}
+          data={chains.map(({ name, id }) => ({
+            label: name,
+            value: id.toString(),
+          }))}
         />
-        <button>Add address</button>
-      </div>
+        <InputGroup>
+          <InputGroup.Addon>PYRLR</InputGroup.Addon>
+          <Input
+            type="number"
+            name="amount"
+            id="amount"
+            value={values.amount}
+            onChange={handleAmountChange}
+          />
+        </InputGroup>
+        <Button type="submit" appearance="subtle" disabled={!isValid}>
+          Add address
+        </Button>
+      </Stack>
     </form>
   );
 };
